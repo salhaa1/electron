@@ -124,6 +124,24 @@
 
 namespace gin {
 
+std::string GetPrinterDescription(int status) {
+  switch (status) {
+    case 0:
+      return "idle";
+    case 1:
+    case 2:
+      return "error";
+    case 3:
+      return "offline";
+    case 4:
+      return "in use";
+    case 5:
+      return "paused";
+    default:
+      return "unknown";
+  }
+}
+
 #if BUILDFLAG(ENABLE_PRINTING)
 template <>
 struct Converter<printing::PrinterBasicInfo> {
@@ -131,8 +149,9 @@ struct Converter<printing::PrinterBasicInfo> {
                                    const printing::PrinterBasicInfo& val) {
     gin_helper::Dictionary dict = gin::Dictionary::CreateEmpty(isolate);
     dict.Set("name", val.printer_name);
+    dict.Set("displayName", val.display_name);
     dict.Set("description", val.printer_description);
-    dict.Set("status", val.printer_status);
+    dict.Set("status", GetPrinterDescription(val.printer_status));
     dict.Set("isDefault", val.is_default ? true : false);
     dict.Set("options", val.options);
     return dict.GetHandle();
